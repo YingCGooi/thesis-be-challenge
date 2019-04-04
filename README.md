@@ -1,96 +1,76 @@
-# OMDb Movie Tracker
+# Thesis Backend Challenge: Schedule API
 
-## Demo
-To skip installation and view the app, navigate to https://omdb-tracker.herokuapp.com/.
+## Set-up
+1. Make sure that you have Ruby version 2.4.1 installed and running locally.
 
-## Local Installation
-Make sure to have PostgreSQL installed and running properly in your machine. Also, make sure that you have Ruby 2.4.1 installed and running locally.
+2. In the root directory of this project, run `bundle install` to install dependencies.
 
-1. Navigate to the root directory of the project.
+3. Then, run `bundle exec ruby server.rb` to run the server.
 
-2. Create a new database named `omdb_tracker`:
+4. You can now access the API endpoints (read documentation below).
 
+## API Documentation
+### GET `/api/schedules`
+- returns a json containing all schedules and their associated appointments
+- curl example: 
 ```
-createdb omdb_tracker
-```
-
-3. Import the sql schema to the database.
-
-```
-psql omdb_tracker < db/schema.sql
+curl http://localhost:4567/api/schedules
 ```
 
-4. Install dependencies by running:
-
+### GET `/api/schedules/:id`
+- params: id
+- returns a json array containing all appointments in the specified schedule
+- curl example:
 ```
-bundle install
+curl http://localhost:4567/api/schedules/0
 ```
+- 404 with an error message if the schedule is not found
 
-Note: you need to have bundler installed
-
-5. Once all gem dependencies have been satisfied, run:
-
+### POST `/api/schedules`
+- creates a new schedule with no appointments
+- returns a json object representing the created schedule object
+- curl example:
 ```
-bundle exec ruby server.rb
-```
-
-This will start the Sinatra server at `localhost:4567`
-
-6. Navigate to `localhost:4567` in your browser to access the application.
-
-## Testing
-Make sure that you complete the local installation.
-
-1. Create a test database named `omdb_tracker_test`
-```
-createdb omdb_tracker_test
+curl -X POST http://localhost:4567/api/schedules
 ```
 
-2. Import the sql schema to the test database
+### POST `/schedules/:id/appointments`
+- creates a new appointment on the specified schedule
+- params: id, start_time, end_time
+- returns the new appointment object
+- curl example:
 ```
-psql omdb_tracker_test < db/schema.sql
+curl -X POST -F 'start_time=1' -F 'end_time=2' http://localhost:4567/api/schedules/0/appointments
+```
+- 404 if the specified schedule id is not found
+- 400 if the start_time or end_time are invalid, or an overlap is possible
+
+### DELETE `schedules/:id`
+- deletes a schedule with its associated appointments
+- params: id
+- curl example:
 ```
 
-3. Run all tests
-```
-bundle exec ruby test/api_test.rb
 ```
 
-## Additional Notes
-### Stack
-- Sinatra as backend API server
-- Postgres as RDBMS, connected via `pg` gem
-- React/Redux as frontend, bundled using Webpack
-- Raw CSS with icons from semantic-ui
+## Data Design
+For this project, I use in-memory storage in the form of hash tables. If the requirement states to persist data, we could choose to write the data to a YAML or JSON file, or even use a RDBMs to enable SQL operations. For now, in-memory storage is fine since we're going to focus on the API features.
 
-### OMDb API Client
-An API wrapper client is built to handle logging, status checking, and server-side caching. Currently, the API client uses a Ruby Hash to cache responses. In a production setting, Redis or Memcached can be used instead to preserve cached data in case of a server crash.
-
-### Backend Validation
-The application's model layer (represented by the `Favorite` class in `db/favorite.rb`) performs appropriate validations before querying the Postgres database. For validating unique values, we rely on Postgres to take advantage of index search for the unique column.
-
-### Favorites List Object
-The object for favorites list has this format:
-
-```go
-const favoritesList = {
-  imdbID1: {
-    title: 'Star Wars',
-    year: '1977',
-    plot: 'Luke Skywalker...',
-    poster: 'https://...',
-    rating: '5',
-    comment: 'An awesome movie...',
-  },
-  imdbID2: {
-    title: 'Avatar',
-    '...': '...',
-  }
+Schedules object:
+```
+{
+  0: [...appointments],
+  1: [...appointments]
 }
 ```
 
-The advantage of using an object with imdbID as the key is that we can perform a lookup for a particular movie in O(1) time. This is efficient to determine whether or not a movie query result matches a movie in the favorites list.
+The schedules object is a hash table with the ID number as key and associated appointments as value.
 
-### `endyear` column
-When fetching data from OMDb, a movie's `year` value may contain a year range (for example: `1978–1979`).
-To conform to the schema of a `year` column to contain only four-digit year numbers `YYYY`, it makes sense to create a separate column `endyear` to store the ending year. When forming a response, the ending year is recombined with the starting year.
+Appointment object:
+```
+{ id: 1, start_time: 1, end_time: 2 }
+```
+
+Each appointment object will contain an id attribute to allow easy retrieval and deletion.
+
+## 
