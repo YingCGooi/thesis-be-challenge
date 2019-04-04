@@ -7,7 +7,11 @@
 
 3. Then, run `bundle exec ruby server.rb` to run the server.
 
-4. You can now access the API endpoints (read documentation below).
+4. You can now access the API endpoints via `http://localhost:4567/api...`. Example:
+
+```
+curl http://localhost:4567/api/schedules
+```
 
 ## API Documentation
 ### GET `/api/schedules`
