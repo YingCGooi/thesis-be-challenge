@@ -22,7 +22,7 @@
 - creates a new schedule with no appointments
 - returns a json object representing the created schedule object
 
-### POST `/schedules/:id/appointments`
+### POST `/api/schedules/:id/appointments`
 - creates a new appointment on the specified schedule
 - params: id, start_time, end_time
 - returns the new appointment object
@@ -33,27 +33,27 @@ curl -X POST -F 'start_time=1' -F 'end_time=2' http://localhost:4567/api/schedul
 - 404 if the specified schedule id is not found
 - 400 if the start_time or end_time are invalid, or an overlap is possible
 
-### DELETE `schedules/:id`
+### DELETE `/api/schedules/:id`
 - deletes a schedule with its associated appointments
 - params: id
 - 404 if schedule is not found
 
-### DELETE `/appointments/:id`
+### DELETE `/api/appointments/:id`
 - deletes an appointment
 - params: id
 - 404 if appointment is not found
 
-### DELETE `/schedules/:schedule_id/appointments/:appt_id`
+### DELETE `/api/schedules/:schedule_id/appointments/:appt_id`
 - deletes an appointment in the specified schedule
 - params: schedule_id, appt_id
 - returns 404 if appointment is not in specified schedule or not found
 
-### GET `/appointments/:id`
+### GET `/api/appointments/:id`
 - returns a single appointment json
 - params: id
 - returns 404 if appointment is not found
 
-### GET `/schedules/:schedule_id/appointments/:appt_id`
+### GET `/api/schedules/:schedule_id/appointments/:appt_id`
 - returns a single appointment json in the specified schedule
 - params: schedule_id, appt_id
 - returns 404 if appointment is not in specified schedule or not found
